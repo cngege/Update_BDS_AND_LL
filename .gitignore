@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+Update_BDS_AND_LL/Updata_BDS_AND_LL/Properties/launchSettings.json
