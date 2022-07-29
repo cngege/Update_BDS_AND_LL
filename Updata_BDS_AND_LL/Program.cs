@@ -51,8 +51,7 @@ string[] BDS_UpdateList = Directory.GetFiles(args[1], "*.zip");
 
 if(BDS_UpdateList.Length > 0)
 {
-    hasBDS_Update = true;
-    string BDS_Update = BDS_UpdateList.First();
+    string? BDS_Update = null;
     if (BDS_UpdateList.Length > 1)
     {
         Console.WriteLine("[进程] [info] [BDS] 找到了多个BDS升级包,请选择一个进行更新");
@@ -61,29 +60,33 @@ if(BDS_UpdateList.Length > 0)
             Console.WriteLine("[{0}] {1}", i, Path.GetFileName(BDS_UpdateList[i]));
         }
         Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.Write("请输入一个序号(0):");
+        Console.Write("请输入一个序号(错误输入则不更新):");
         Console.ForegroundColor = currentForeColor;
 
         String? input = Console.ReadLine();
-        if(input != null && int.TryParse(input,out int input_int))
+        if(input != null && int.TryParse(input,out int input_int) && input_int >= 0 && input_int < BDS_UpdateList.Length)
         {
-            if (input_int >=0 && input_int < BDS_UpdateList.Length)
-            {
-                BDS_Update = BDS_UpdateList[input_int];
-            }
+            BDS_Update = BDS_UpdateList[input_int];
         }
+    }
+    else   // Length == 1
+    {
+        BDS_Update = BDS_UpdateList.First();
     }
 
     /* 更新BDS */
+    if(BDS_Update != null)
+    {
+        hasBDS_Update = true;
+        Console.WriteLine("[进程] [info] [BDS] 开始更新 {0}", Path.GetFileName(BDS_Update));
+        (new FastZip()).ExtractZip(BDS_Update, args[0], FastZip.Overwrite.Prompt, zipOverwrite, null, null, true);
 
-    Console.WriteLine("[进程] [info] [BDS] 开始更新 {0}", Path.GetFileName(BDS_Update));
-    (new FastZip()).ExtractZip(BDS_Update, args[0], FastZip.Overwrite.Prompt, zipOverwrite, null, null, true);
+        File.Delete(BDS_Update);
 
-    File.Delete(BDS_Update);
-
-    Console.ForegroundColor = ConsoleColor.Yellow;
-    Console.WriteLine("[进程] [info] [BDS] BDS更新完成");
-    Console.ForegroundColor = currentForeColor;
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine("[进程] [info] [BDS] BDS更新完成");
+        Console.ForegroundColor = currentForeColor;
+    }
 }
 
 
@@ -92,7 +95,7 @@ if(BDS_UpdateList.Length > 0)
 string[] LL_UpdateList = Directory.GetFiles(args[2], "*.zip");
 if(LL_UpdateList.Length > 0)
 {
-    string LL_Update = LL_UpdateList.First();
+    string? LL_Update = null;
     //如果有多个LL更新压缩包的情况
     if(LL_UpdateList.Length > 1)
     {
@@ -102,28 +105,32 @@ if(LL_UpdateList.Length > 0)
             Console.WriteLine("[{0}] {1}", i, Path.GetFileName(LL_UpdateList[i]));
         }
         Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.Write("请输入一个序号(0):");
+        Console.Write("请输入一个序号(错误输入则不更新):");
         Console.ForegroundColor = currentForeColor;
 
         String? input = Console.ReadLine();
-        if (input != null && int.TryParse(input, out int input_int))
+        if (input != null && int.TryParse(input, out int input_int) && input_int >= 0 && input_int < LL_UpdateList.Length)
         {
-            if (input_int >= 0 && input_int < LL_UpdateList.Length)
-            {
-                LL_Update = BDS_UpdateList[input_int];
-            }
+            LL_Update = BDS_UpdateList[input_int];
         }
+    }
+    else   //Length == 1
+    {
+        LL_Update = LL_UpdateList.First();
     }
 
     /* 更新LL */
-    Console.WriteLine("[进程] [info] [LL] 开始更新 {0}", Path.GetFileName(LL_Update));
-    (new FastZip()).ExtractZip(LL_Update, args[0], null);
+    if(LL_Update != null)
+    {
+        Console.WriteLine("[进程] [info] [LL] 开始更新 {0}", Path.GetFileName(LL_Update));
+        (new FastZip()).ExtractZip(LL_Update, args[0], null);
 
-    File.Delete(LL_Update);
+        File.Delete(LL_Update);
 
-    Console.ForegroundColor = ConsoleColor.Yellow;
-    Console.WriteLine("[进程] [info] [LL] LL更新完成");
-    Console.ForegroundColor = currentForeColor;
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine("[进程] [info] [LL] LL更新完成");
+        Console.ForegroundColor = currentForeColor;
+    }
 }
 
 Console.WriteLine("\n");
