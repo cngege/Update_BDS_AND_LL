@@ -20,7 +20,8 @@ Console.WriteLine("[进程] [info] [更新说明] 请先将BDS和LL的zip压缩�
 Console.WriteLine("[进程] [info] [更新说明] 本程序将解压更新包到BDS中,但并不会覆盖某些关键文件");
 Console.WriteLine("[进程] [info] [更新说明] 如果检测到BDS更新包,将在最后运行LLPeEditor.exe");
 Console.WriteLine("[进程] [info] [更新说明] 更新后自动删除更新包");
-Console.WriteLine("\n");
+//Console.WriteLine("\n");
+Console.ForegroundColor = currentForeColor;
 Console.WriteLine("[进程] [info] [url] BDS下载地址：{0}", "https://www.minecraft.net/zh-hans/download/server/bedrock");
 Console.WriteLine("[进程] [info] [url] LL下载地址：{0}", "https://github.com/LiteLDev/LiteLoaderBDS/releases");
 Console.WriteLine("\n");
@@ -36,7 +37,7 @@ if (args.Length < 3)
     Console.ForegroundColor = currentForeColor;
     return;
 }
-Console.ForegroundColor = currentForeColor;
+//Console.ForegroundColor = currentForeColor;
 
 
 /* 检测参数中的文件夹是否存在 */
@@ -87,6 +88,16 @@ if(BDS_UpdateList.Length > 0)
         Console.WriteLine("[进程] [info] [BDS] BDS更新完成");
         Console.ForegroundColor = currentForeColor;
     }
+    else
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine("[进程] [info] [BDS] 跳过BDS更新");
+        Console.ForegroundColor = currentForeColor;
+    }
+}
+else
+{
+    Console.WriteLine("[进程] [info] [BDS] 没有找到BDS更新包");
 }
 
 
@@ -131,16 +142,23 @@ if(LL_UpdateList.Length > 0)
         Console.WriteLine("[进程] [info] [LL] LL更新完成");
         Console.ForegroundColor = currentForeColor;
     }
+    else
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine("[进程] [info] [LL] 跳过LL更新");
+        Console.ForegroundColor = currentForeColor;
+    }
 }
-
-Console.WriteLine("\n");
-Console.WriteLine("[进程] [info] 压缩包覆盖完成");
+else
+{
+    Console.WriteLine("[进程] [info] [LL] 没有找到LL更新包");
+}
 
 //表示进行过 BDS更新
 if (hasBDS_Update && File.Exists(args[0] + "LLPeEditor.exe"))
 {
-    Console.WriteLine("[进程] [info] 检测到进行过BDS更新");
-    Console.WriteLine("[进程] [info] 正在生成 bedrock_server_mod.exe");
+    Console.WriteLine("[进程] [info] [LLPeEditor] 检测到进行过BDS更新");
+    Console.WriteLine("[进程] [info] [LLPeEditor] 正在生成 bedrock_server_mod.exe");
 
     Process process = new Process();
     ProcessStartInfo startInfo = new ProcessStartInfo(args[0] + "LLPeEditor.exe", "--noPause");
@@ -154,7 +172,6 @@ if (hasBDS_Update && File.Exists(args[0] + "LLPeEditor.exe"))
     process.Close();
 }
 
-Console.WriteLine("[进程] [info] 压缩包覆盖完成");
 Console.WriteLine("[进程] [info] 更新全部结束");
 
 
