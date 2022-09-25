@@ -7,164 +7,78 @@
 using ICSharpCode.SharpZipLib.Zip;
 using System.Diagnostics;
 using Updata_BDS_AND_LL;
+using Update_BDS_AND_LL;
 
 bool hasBDS_Update = false;
+string work_path = Functions.CheckPathEnd(System.IO.Directory.GetCurrentDirectory());
+string updatepack_path = "UpdatePack/";
+bool localNoFoundBDSTag = !File.Exists("bedrock_server.exe");
 
-Console.WriteLine("开发者: {0}, TIME: {1}, GitHub: {2}\n", "CNGEGE", "2022-07-27", "https://github.com/cngege");
+Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-ConsoleColor currentForeColor = Console.ForegroundColor;
-Console.ForegroundColor = ConsoleColor.Yellow;
-Console.WriteLine("[进程] [info] [更新说明] 请务必确保将要更新的BDS进程已经关闭,升级程序不会检测这些");
-Console.ForegroundColor = ConsoleColor.Green;
-Console.WriteLine("[进程] [info] [更新说明] 请先将BDS和LL的zip压缩包放入对应文件夹中,然后运行本程序,传入对应参数");
-Console.WriteLine("[进程] [info] [更新说明] 本程序将解压更新包到BDS中,但并不会覆盖某些关键文件");
-Console.WriteLine("[进程] [info] [更新说明] 如果检测到BDS更新包,将在最后运行LLPeEditor.exe");
-Console.WriteLine("[进程] [info] [更新说明] 更新后自动删除更新包");
-//Console.WriteLine("\n");
-Console.ForegroundColor = currentForeColor;
-Console.WriteLine("[进程] [info] [url] BDS下载地址：{0}", "https://www.minecraft.net/zh-hans/download/server/bedrock");
-Console.WriteLine("[进程] [info] [url] LL下载地址：{0}", "https://github.com/LiteLDev/LiteLoaderBDS/releases");
-Console.WriteLine("\n");
+Logger.Info("开发者: {0}, 项目创建时间: {1}, GitHub: {2}", "CNGEGE", "2022-07-27", "https://github.com/cngege");
+//Logger.Info("程序版本: {0}\n", FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion);
 
-if (args.Length < 3)
+Logger.Info("[更新说明] 请务必确保将要更新的BDS进程已经关闭,升级程序不会检测这些");
+Logger.Info("[更新说明] 将本程序放置于BDS根目录下");
+Logger.Info("[更新说明] 将更新包BDS、LL压缩包，放在[UpdatePack]文件夹中,程序将会解压所有更新包的根目录");
+Logger.Info("[更新说明] 程序自动判断压缩包中是否含有BDS配置文件,本地存在则不覆盖");
+Logger.Info("[更新说明] 运行程序自动解压缩压缩包,如果检测到更新了BDS,且存在LLPeEditor.exe");
+Logger.Info("[更新说明] 则自动运行LLPeEditor.exe生成bedrock_server_mod.exe");
+Logger.Info("[更新说明] 更新后自动删除更新包");
+Logger.Info("[更新说明] *请确保运行环境目录就是本程序存在的目录");
+Logger.Info("[下载地址] BDS下载地址：{0}", "https://www.minecraft.net/zh-hans/download/server/bedrock");
+Logger.Info("[下载地址] LL下载地址：{0}", "https://github.com/LiteLDev/LiteLoaderBDS/releases");
+
+//不接受传参自定义上传文件文件夹
+Functions.CheckPath(updatepack_path);
+
+
+/* 检测所有压缩包并解压 */
+string[] UpdatePackList = Directory.GetFiles(updatepack_path, "*.zip");
+
+if(UpdatePackList.Length > 0)
 {
-    Console.ForegroundColor = ConsoleColor.Red;
-    Console.WriteLine("[进程] [Error] 启动时必须要传入三个参数:");
-    Console.WriteLine("[进程] [Error] args[0]: BDS根目录,最好是绝对目录,最后带/");
-    Console.WriteLine("[进程] [Error] args[1]: BDS更新压缩包目录,最后带/");
-    Console.WriteLine("[进程] [Error] args[2]: LL更新包目录,最后带/");
-    Console.WriteLine("\n");
-    Console.ForegroundColor = currentForeColor;
-    return;
+    Logger.Info("[更新包] 找到了{0}个更新包,开启解压...", UpdatePackList.Length);
+    for (int i = 0; i < UpdatePackList.Length; i++)
+    {
+        Logger.Info("[{0}/{1}] 正在更新: {2}", i+1, UpdatePackList.Length, Path.GetFileName(UpdatePackList[i]));
+        (new FastZip()).ExtractZip(UpdatePackList[i], ".", FastZip.Overwrite.Prompt, zipOverwrite, null, null, true);
+        File.Delete(UpdatePackList[i]);
+        Logger.Info("[{0}/{1}] {2} 解压完成", i+1, UpdatePackList.Length, Path.GetFileName(UpdatePackList[i]));
+    }
+
 }
-//Console.ForegroundColor = currentForeColor;
-
-
-/* 检测参数中的文件夹是否存在 */
-
-Functions.CheckPath(args[0]);
-Functions.CheckPath(args[1]);
-Functions.CheckPath(args[2]);
-
-/* 检测BDS更新包并解压 */
-
-string[] BDS_UpdateList = Directory.GetFiles(args[1], "*.zip");
-
-if(BDS_UpdateList.Length > 0)
+else
 {
-    string? BDS_Update = null;
-    if (BDS_UpdateList.Length > 1)
-    {
-        Console.WriteLine("[进程] [info] [BDS] 找到了多个BDS升级包,请选择一个进行更新");
-        for (int i = 0; i < BDS_UpdateList.Length; i++)
-        {
-            Console.WriteLine("[{0}] {1}", i, Path.GetFileName(BDS_UpdateList[i]));
-        }
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.Write("请输入一个序号(错误输入则不更新):");
-        Console.ForegroundColor = currentForeColor;
+    Logger.Warn("[更新包] 没有找到更新包,跳过解压");
+}
 
-        String? input = Console.ReadLine();
-        if(input != null && int.TryParse(input,out int input_int) && input_int >= 0 && input_int < BDS_UpdateList.Length)
-        {
-            BDS_Update = BDS_UpdateList[input_int];
-        }
-    }
-    else   // Length == 1
-    {
-        BDS_Update = BDS_UpdateList.First();
-    }
+//将更新文件夹里的[plugins]文件夹下的文件文件移动到插件目录下
+Functions.CheckPath(updatepack_path + "plugins/");
+//TODO  进行文件的移动
 
-    /* 更新BDS */
-    if(BDS_Update != null)
+//更新前本地没有BDS
+if (localNoFoundBDSTag)
+{
+    //更新后本地有BDS
+    if (File.Exists("bedrock_server.exe"))
     {
         hasBDS_Update = true;
-        Console.WriteLine("[进程] [info] [BDS] 开始更新 {0}", Path.GetFileName(BDS_Update));
-        (new FastZip()).ExtractZip(BDS_Update, args[0], FastZip.Overwrite.Prompt, zipOverwrite, null, null, true);
-
-        File.Delete(BDS_Update);
-
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine("[进程] [info] [BDS] BDS更新完成");
-        Console.ForegroundColor = currentForeColor;
     }
-    else
-    {
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine("[进程] [info] [BDS] 跳过BDS更新");
-        Console.ForegroundColor = currentForeColor;
-    }
-}
-else
-{
-    Console.WriteLine("[进程] [info] [BDS] 没有找到BDS更新包");
-}
-
-
-/* 检测LL更新包并解压 */
-
-string[] LL_UpdateList = Directory.GetFiles(args[2], "*.zip");
-if(LL_UpdateList.Length > 0)
-{
-    string? LL_Update = null;
-    //如果有多个LL更新压缩包的情况
-    if(LL_UpdateList.Length > 1)
-    {
-        Console.WriteLine("[进程] [info] [LL] 找到了多个LL升级包,请选择一个进行更新");
-        for (int i = 0; i < LL_UpdateList.Length; i++)
-        {
-            Console.WriteLine("[{0}] {1}", i, Path.GetFileName(LL_UpdateList[i]));
-        }
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.Write("请输入一个序号(错误输入则不更新):");
-        Console.ForegroundColor = currentForeColor;
-
-        String? input = Console.ReadLine();
-        if (input != null && int.TryParse(input, out int input_int) && input_int >= 0 && input_int < LL_UpdateList.Length)
-        {
-            LL_Update = BDS_UpdateList[input_int];
-        }
-    }
-    else   //Length == 1
-    {
-        LL_Update = LL_UpdateList.First();
-    }
-
-    /* 更新LL */
-    if(LL_Update != null)
-    {
-        Console.WriteLine("[进程] [info] [LL] 开始更新 {0}", Path.GetFileName(LL_Update));
-        (new FastZip()).ExtractZip(LL_Update, args[0], null);
-
-        File.Delete(LL_Update);
-
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine("[进程] [info] [LL] LL更新完成");
-        Console.ForegroundColor = currentForeColor;
-    }
-    else
-    {
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine("[进程] [info] [LL] 跳过LL更新");
-        Console.ForegroundColor = currentForeColor;
-    }
-}
-else
-{
-    Console.WriteLine("[进程] [info] [LL] 没有找到LL更新包");
 }
 
 //表示进行过 BDS更新
-if (hasBDS_Update && File.Exists(args[0] + "LLPeEditor.exe"))
+if (hasBDS_Update && File.Exists("LLPeEditor.exe"))
 {
-    Console.WriteLine("[进程] [info] [LLPeEditor] 检测到进行过BDS更新");
-    Console.WriteLine("[进程] [info] [LLPeEditor] 正在生成 bedrock_server_mod.exe");
+    Logger.Info("[LLPeEditor] 检测到进行过BDS更新");
+    Logger.Info("[LLPeEditor] 正在生成 bedrock_server_mod.exe");
 
     Process process = new Process();
-    ProcessStartInfo startInfo = new ProcessStartInfo(args[0] + "LLPeEditor.exe", "--noPause");
+    ProcessStartInfo startInfo = new ProcessStartInfo("LLPeEditor.exe", "--noPause");
     startInfo.CreateNoWindow = true;
     startInfo.UseShellExecute = false;
-    startInfo.WorkingDirectory = args[0];       //设置工作目录为BDS目录
+    startInfo.WorkingDirectory = work_path;       //设置工作目录为BDS目录
     startInfo.WindowStyle = ProcessWindowStyle.Hidden;
     process.StartInfo = startInfo;
     process.Start();
@@ -172,13 +86,16 @@ if (hasBDS_Update && File.Exists(args[0] + "LLPeEditor.exe"))
     process.Close();
 }
 
-Console.WriteLine("[进程] [info] 更新全部结束");
+Logger.Info("更新全部结束");
 
 
+//覆盖询问
 bool zipOverwrite(string filepath){
     string filename = Path.GetFileName(filepath);
     //如果这些文件已经存在 则不会更新
     if (filename == "server.properties" || filename == "permissions.json" || filename == "allowlist.json")
         return false;
+    if (filename == "bedrock_server.exe")
+        hasBDS_Update = true;
     return true;
 };

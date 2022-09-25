@@ -21,5 +21,22 @@ namespace Updata_BDS_AND_LL
             }
             return Directory.Exists(path);
         }
+
+        /// <summary>
+        /// 检查路径是否以/ 或者\\结尾,返回以/结尾的路径
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static string CheckPathEnd(string path)
+        {
+            if (path.LastIndexOf("/") == path.Length - 1 || path.LastIndexOf("\\") == path.Length - 1)
+            {
+                return path;
+            }
+            else
+            {
+                return path + "/";
+            }
+        }
     }
 }

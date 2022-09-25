@@ -2,7 +2,7 @@
   "profiles": {
     "Updata_BDS_AND_LL": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\Users\\CNGEGE\\Desktop\\MCPEServer\\MCPE1.19.10.03\\\r\nC:\\Users\\CNGEGE\\Desktop\\MCPEServer\\Updata_BDS\\\r\nC:\\Users\\CNGEGE\\Desktop\\MCPEServer\\Updata_LL\\"
+      "workingDirectory": "C:\\Users\\CNGEGE\\Desktop\\MCPEServer\\MCPE1.19.30.04\\"
     }
   }
 }
