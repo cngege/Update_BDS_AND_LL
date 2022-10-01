@@ -142,7 +142,10 @@ while (true)
             DownBDS.Suffix = ".bds";
             DownBDS.Downprogress += (long filesize, long downsize, bool waft) =>
             {
-                downok = waft;
+                if (waft)
+                {
+                    downok = true;
+                }
             };
             int DownStatus = DownBDS.Start();
             if(DownStatus == 0)
@@ -153,17 +156,14 @@ while (true)
             if(DownStatus == 1)
             {
                 Logger.Info("BDS{0}.zip 已经创建线程下载,下载中", BDSVersion);
-                while (true)
+                while (!downok)
                 {
-                    if (downok)
-                    {
-                        break;
-                    }
+                    Thread.Sleep(500);
                 }
                 Logger.Info("BDS{0}.zip 下载完成. ", BDSVersion);
                 break;
             }
-            if(DownStatus == 3)
+            if(DownStatus == 2)
             {
                 Logger.Info("BDS{0}.zip 下载完成.", BDSVersion);
                 break;
@@ -242,7 +242,10 @@ while (true)
             DownBDS.Suffix = ".ll";
             DownBDS.Downprogress += (long filesize, long downsize, bool waft) =>
             {
-                downok = waft;
+                if (waft)
+                {
+                    downok = true;
+                }
             };
             int DownStatus = DownBDS.Start();
             if (DownStatus == 0)
@@ -253,17 +256,14 @@ while (true)
             if (DownStatus == 1)
             {
                 Logger.Info("{0} 已经创建线程下载,下载中", LL.assets.First().name);
-                while (true)
+                while (!downok)
                 {
-                    if (downok)
-                    {
-                        break;
-                    }
+                    Thread.Sleep(500);
                 }
                 Logger.Info("{0} 下载完成. ", LL.assets.First().name);
                 break;
             }
-            if (DownStatus == 3)
+            if (DownStatus == 2)
             {
                 Logger.Info("{0} 下载完成.", LL.assets.First().name);
                 break;

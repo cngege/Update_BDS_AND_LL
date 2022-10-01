@@ -2,7 +2,16 @@
   "profiles": {
     "Updata_BDS_AND_LL": {
       "commandName": "Project",
-      "workingDirectory": "C:\\Users\\CNGEGE\\Desktop\\MCPEServer\\MCPE\\"
+      "workingDirectory": "C:\\Users\\CNGEGE\\Desktop\\MCPEServer\\MCPE\\",
+      "remoteDebugEnabled": false
+    },
+    "WSL": {
+      "commandName": "WSL2",
+      "distributionName": ""
+    },
+    "配置文件 1": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Users\\CNGEGE\\Desktop\\MCPEServer\\MCPE\\Update_BDS_AND_LL.exe"
     }
   }
 }
