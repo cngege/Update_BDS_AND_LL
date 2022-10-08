@@ -317,7 +317,7 @@ if (localNoFoundBDSTag)
 }
 
 //表示进行过 BDS更新
-if (hasBDS_Update && File.Exists("LLPeEditor.exe"))
+if (File.Exists("LLPeEditor.exe") && (hasBDS_Update || !File.Exists("bedrock_server_mod.exe")))
 {
     Logger.Info("[LLPeEditor] 检测到进行过BDS更新");
     Logger.Info("[LLPeEditor] 正在生成 bedrock_server_mod.exe");
