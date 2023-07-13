@@ -2,7 +2,6 @@
   "profiles": {
     "Updata_BDS_AND_LL": {
       "commandName": "Project",
-      "workingDirectory": "C:\\Users\\CNGEGE\\Desktop\\MCPEServer\\MCPE\\",
       "remoteDebugEnabled": false
     },
     "WSL": {

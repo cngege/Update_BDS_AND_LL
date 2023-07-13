@@ -28,8 +28,12 @@ string BDSPilterB = ".zip";
 string BDSDownaddr = "";
 
 string LLInfoaddr = "https://api.github.com/repos/LiteLDev/LiteLoaderBDS/releases/latest";
+string LLproxyDown = "https://ghproxy.com/{0}";
 
 string? thispath = Process.GetCurrentProcess().MainModule?.FileName;
+
+Logger logger = new();
+
 if(thispath != null)
 {
     fileVer = FileVersionInfo.GetVersionInfo(thispath).FileVersion;
@@ -41,25 +45,25 @@ if (!localNoFoundBDSTag)
 }
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
-Logger.Info("开发者: {0}, 项目创建时间: {1}, GitHub: {2}", "CNGEGE", "2022-07-27", "https://github.com/cngege");
+logger.Info("开发者: {0}, 项目创建时间: {1}, GitHub: {2}", "CNGEGE", "2022-07-27", "https://github.com/cngege");
 if(fileVer != String.Empty)
 {
-    Logger.Info("程序版本: {0}", fileVer);
+    logger.Info("程序版本: {0}", fileVer);
 }
 if (BDSVer != String.Empty && BDSVer != null)
 {
-    Logger.Info("BDS程序版本: {0}", BDSVer);
+    logger.Info("BDS程序版本: {0}", BDSVer);
 }
-Logger.Info("[更新说明] 将本程序放置于BDS根目录下");
-Logger.Info("[更新说明] 将更新包BDS、LL压缩包，放在[UpdatePack]文件夹中,程序将会解压所有更新包的根目录");
-Logger.Info("[更新说明] 将BDS插件放到[UpdatePack/plugins]文件夹中,程序自动将该文件夹的所有内容移动到BDS插件目录");
-Logger.Info("[更新说明] 程序自动判断压缩包中是否含有BDS配置文件,本地存在则不覆盖");
-Logger.Info("[更新说明] 运行程序自动解压缩压缩包,如果检测到更新了BDS,且存在LLPeEditor.exe");
-Logger.Info("[更新说明] 则自动运行LLPeEditor.exe生成bedrock_server_mod.exe");
-Logger.Info("[更新说明] 更新后自动删除更新包");
-Logger.Info("[更新说明] *请确保运行环境目录就是本程序存在的目录");
-Logger.Info("[下载地址] BDS下载地址：{0}", "https://www.minecraft.net/zh-hans/download/server/bedrock");
-Logger.Info("[下载地址] LL下载地址：{0}", "https://github.com/LiteLDev/LiteLoaderBDS/releases");
+logger.SubTitle("更新说明").Info("将本程序放置于BDS根目录下");
+logger.SubTitle("更新说明").Info("将更新包BDS、LL压缩包，放在[UpdatePack]文件夹中,程序将会解压所有更新包的根目录");
+logger.SubTitle("更新说明").Info("将BDS插件放到[UpdatePack/plugins]文件夹中,程序自动将该文件夹的所有内容移动到BDS插件目录");
+logger.SubTitle("更新说明").Info("程序自动判断压缩包中是否含有BDS配置文件,本地存在则不覆盖");
+logger.SubTitle("更新说明").Info("运行程序自动解压缩压缩包,如果检测到更新了BDS,且存在LLPeEditor.exe");
+logger.SubTitle("更新说明").Info("则自动运行LLPeEditor.exe生成bedrock_server_mod.exe");
+logger.SubTitle("更新说明").Info("更新后自动删除更新包");
+logger.SubTitle("更新说明").Info("*请确保运行环境目录就是本程序存在的目录");
+logger.SubTitle("下载地址").Info("BDS下载地址：{0}", "https://www.minecraft.net/zh-hans/download/server/bedrock");
+logger.SubTitle("下载地址").Info("LL下载地址：{0}", "https://github.com/LiteLDev/LiteLoaderBDS/releases");
 
 //不接受传参自定义上传文件文件夹
 Functions.CheckPath(updatepack_path);
@@ -67,7 +71,7 @@ Functions.CheckPath(updatepack_path);
 //检测MC进程
 if(Address.GetPid("bedrock_server") != 0 || Address.GetPid("bedrock_server_mod") != 0)
 {
-    Logger.Warn("[进程冲突] 检测到系统有BDS进程,无法判断是否是将升级的BDS,请自行决定是否手动关闭BDS");
+    logger.Warn("[进程冲突] 检测到系统有BDS进程,无法判断是否是将升级的BDS,请自行决定是否手动关闭BDS");
     Console.Write("[暂停] 按回车继续...");
     Console.ReadLine();
 }
@@ -77,8 +81,8 @@ if(Address.GetPid("bedrock_server") != 0 || Address.GetPid("bedrock_server_mod")
 
 while (true)
 {
-    Logger.Info("开始获取BDS官网下载相关信息");
-    WebHeaderCollection headers = new WebHeaderCollection();
+    logger.Info("开始获取BDS官网下载相关信息");
+    var headers = new WebHeaderCollection();
     headers.Set("Pragma", "no-cache");
     headers.Set("Upgrade-Insecure-Requests", "1");
     headers.Set("Cache-Control", "no-cache");
@@ -87,10 +91,10 @@ while (true)
     int BDSstartposition = Httpdata.IndexOf(BDSPilterA);
     if (Httpdata == "" || BDSstartposition == -1)
     {
-        Logger.Error("[下载BDS] 官网获取BDS信息失败,请输入选择一项更改下面的工作");
-        Logger.Info("输入 y 回车 重新获取bds下载信息");
-        Logger.Info("输入 n 回车 结束本程序");
-        Logger.Info("直接 回车 跳过BDS下载,开始下一项");
+        logger.Error("[下载BDS] 官网获取BDS信息失败,请输入选择一项更改下面的工作");
+        logger.Info("输入 y 回车 重新获取bds下载信息");
+        logger.Info("输入 n 回车 结束本程序");
+        logger.Info("直接 回车 跳过BDS下载,开始下一项");
         string? input = Console.ReadLine();
         if (input == null || input == "")
         {
@@ -102,7 +106,7 @@ while (true)
         }
         if(input.ToLower() == "n")
         {
-            Logger.Warn("本次更新到此结束");
+            logger.Warn("本次更新到此结束");
             return;
         }
     }
@@ -117,12 +121,12 @@ while (true)
         //TagShow("找出Windows下载地址");
         BDSDownaddr = Httpdata.Substring(BDSstartposition, BDSaddrLong);
 
-        Logger.Info("获取到BDS下载地址: {0}", BDSDownaddr);
-        Logger.Info("BDS最新版本号: {0}", BDSVersion);
-        Logger.Warn("请输入选择一项以决定下面的工作");
-        Logger.Info("输入 y 回车 进行BDS下载");
-        Logger.Info("输入 n 回车 结束本程序");
-        Logger.Info("直接 回车 跳过BDS下载,开始下一项");
+        logger.Info("获取到BDS下载地址: {0}", BDSDownaddr);
+        logger.Info("BDS最新版本号: {0}", BDSVersion);
+        logger.Warn("请输入选择一项以决定下面的工作");
+        logger.Info("输入 y 回车 进行BDS下载");
+        logger.Info("输入 n 回车 结束本程序");
+        logger.Info("直接 回车 跳过BDS下载,开始下一项");
         string? input = Console.ReadLine();
         if (input == null || input == "")
         {
@@ -130,15 +134,15 @@ while (true)
         }
         if (input.ToLower() == "n")
         {
-            Logger.Warn("本次更新到此结束");
+            logger.Warn("本次更新到此结束");
             return;
         }
         if (input.ToLower() == "y")
         {
             //下载：
-            Logger.Info("开始下载,请稍候...");
+            logger.Info("开始下载,请稍候...");
             bool downok = false;
-            Download DownBDS = new Download(BDSDownaddr, updatepack_path, $"BDS{BDSVersion}.zip");
+            var DownBDS = new Download(BDSDownaddr, updatepack_path, $"BDS{BDSVersion}.zip");
             DownBDS.Suffix = ".bds";
             DownBDS.Downprogress += (long filesize, long downsize, bool waft) =>
             {
@@ -150,22 +154,22 @@ while (true)
             int DownStatus = DownBDS.Start();
             if(DownStatus == 0)
             {
-                Logger.Error("BDS{0}.zip 下载失败,本次更新到此结束", BDSVersion);
+                logger.Error("BDS{0}.zip 下载失败,本次更新到此结束", BDSVersion);
                 return;
             }
             if(DownStatus == 1)
             {
-                Logger.Info("BDS{0}.zip 已经创建线程下载,下载中", BDSVersion);
+                logger.Info("BDS{0}.zip 已经创建线程下载,下载中", BDSVersion);
                 while (!downok)
                 {
                     Thread.Sleep(500);
                 }
-                Logger.Info("BDS{0}.zip 下载完成. ", BDSVersion);
+                logger.Info("BDS{0}.zip 下载完成. ", BDSVersion);
                 break;
             }
             if(DownStatus == 2)
             {
-                Logger.Info("BDS{0}.zip 下载完成.", BDSVersion);
+                logger.Info("BDS{0}.zip 下载完成.", BDSVersion);
                 break;
             }
         }
@@ -177,16 +181,16 @@ while (true)
 //下载LL
 while (true)
 {
-    Logger.Info("开始获取GitHub LL下载相关信息");
+    logger.Info("开始获取GitHub LL下载相关信息");
     //ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
     string Httpdata = Download.GetHttpData(LLInfoaddr);
     LLJson? LL = JsonConvert.DeserializeObject<LLJson>(Httpdata);
     if(Httpdata == "" || Httpdata.IndexOf("{") != 0 || LL == null || LL.assets == null || LL.assets.Count == 0)
     {
-        Logger.Error("[下载LL] GitHub获取LL信息失败,请输入选择一项更改下面的工作");
-        Logger.Info("输入 y 回车 重新获取LL下载信息");
-        Logger.Info("输入 n 回车 结束本程序");
-        Logger.Info("直接 回车 跳过LL下载,开始下一项");
+        logger.Error("[下载LL] GitHub获取LL信息失败,请输入选择一项更改下面的工作");
+        logger.Info("输入 y 回车 重新获取LL下载信息");
+        logger.Info("输入 n 回车 结束本程序");
+        logger.Info("直接 回车 跳过LL下载,开始下一项");
         string? input = Console.ReadLine();
         if (input == null || input == "")
         {
@@ -198,31 +202,32 @@ while (true)
         }
         if (input.ToLower() == "n")
         {
-            Logger.Warn("本次更新到此结束");
+            logger.Warn("本次更新到此结束");
             return;
         }
     }
     else
     {
-        Logger.Info("获取到LL下载地址: {0}", LL.assets.First().browser_download_url);
-        Logger.Info("LL版本标签号: {0}", LL.tag_name);
-        Logger.Info("LL版本号: {0}", LL.name);
+        logger.Info("获取到LL下载地址: {0}", LL.assets.First().browser_download_url);
+        logger.Info("LL版本标签号: {0}", LL.tag_name);
+        logger.Info("LL版本号: {0}", LL.name);
         if(LL.body != null)
         {
-            string[] bodys = LL.body.Split("\r\n");
+            string[] bodys = LL.body.Split("\n");
             foreach (string body in bodys)
             {
                 if (body.ToLower().IndexOf("bds-") != -1)
                 {
-                    Logger.Info("和BDS有关介绍:{0}", body);
+                    logger.Info("和BDS有关介绍:{0}", body);
                     break;
                 }
             }
         }
-        Logger.Warn("请输入选择一项以决定下面的工作");
-        Logger.Info("输入 y 回车 进行LL下载");
-        Logger.Info("输入 n 回车 结束本程序");
-        Logger.Info("直接 回车 跳过LL下载,开始下一项");
+        logger.Warn("请输入选择一项以决定下面的工作");
+        logger.Info("输入 y 回车 进行LL下载");
+        logger.Info("输入 p 回车 使用代理链接加速下载");
+        logger.Info("输入 n 回车 结束本程序");
+        logger.Info("直接 回车 跳过LL下载,开始下一项");
         string? input = Console.ReadLine();
         if (input == null || input == "")
         {
@@ -230,15 +235,16 @@ while (true)
         }
         if (input.ToLower() == "n")
         {
-            Logger.Warn("本次更新到此结束");
+            logger.Warn("本次更新到此结束");
             return;
         }
-        if (input.ToLower() == "y")
+        if (input.ToLower() == "y" || input.ToLower() == "p")
         {
             //下载：
-            Logger.Info("开始下载,请稍候...");
+            logger.Info("开始下载,请稍候...");
+            string? url = (input.ToLower() == "p") ? string.Format(LLproxyDown, LL.assets.First().browser_download_url) : LL.assets.First().browser_download_url;
             bool downok = false;
-            Download DownBDS = new Download(LL.assets.First().browser_download_url, updatepack_path, LL.assets.First().name);
+            var DownBDS = new Download(url, updatepack_path, LL.assets.First().name);
             DownBDS.Suffix = ".ll";
             DownBDS.Downprogress += (long filesize, long downsize, bool waft) =>
             {
@@ -250,22 +256,22 @@ while (true)
             int DownStatus = DownBDS.Start();
             if (DownStatus == 0)
             {
-                Logger.Error("{0} 下载失败,本次更新到此结束", LL.assets.First().name);
+                logger.Error("{0} 下载失败,本次更新到此结束", LL.assets.First().name);
                 return;
             }
             if (DownStatus == 1)
             {
-                Logger.Info("{0} 已经创建线程下载,下载中", LL.assets.First().name);
+                logger.Info("{0} 已经创建线程下载,下载中", LL.assets.First().name);
                 while (!downok)
                 {
                     Thread.Sleep(500);
                 }
-                Logger.Info("{0} 下载完成. ", LL.assets.First().name);
+                logger.Info("{0} 下载完成. ", LL.assets.First().name);
                 break;
             }
             if (DownStatus == 2)
             {
-                Logger.Info("{0} 下载完成.", LL.assets.First().name);
+                logger.Info("{0} 下载完成.", LL.assets.First().name);
                 break;
             }
         }
@@ -279,19 +285,29 @@ string[] UpdatePackList = Directory.GetFiles(updatepack_path, "*.zip");
 
 if(UpdatePackList.Length > 0)
 {
-    Logger.Info("[更新包] 找到了{0}个更新包,开启解压...", UpdatePackList.Length);
+    logger.Info("[更新包] 找到了{0}个更新包,开启解压...", UpdatePackList.Length);
     for (int i = 0; i < UpdatePackList.Length; i++)
     {
-        Logger.Info("[{0}/{1}] 正在更新: {2}", i+1, UpdatePackList.Length, Path.GetFileName(UpdatePackList[i]));
+        logger.Info("[{0}/{1}] 正在更新: {2}", i+1, UpdatePackList.Length, Path.GetFileName(UpdatePackList[i]));
         (new FastZip()).ExtractZip(UpdatePackList[i], ".", FastZip.Overwrite.Prompt, zipOverwrite, null, null, true);
         File.Delete(UpdatePackList[i]);
-        Logger.Info("[{0}/{1}] {2} 解压完成", i+1, UpdatePackList.Length, Path.GetFileName(UpdatePackList[i]));
+        logger.Info("[{0}/{1}] {2} 解压完成", i+1, UpdatePackList.Length, Path.GetFileName(UpdatePackList[i]));
     }
 
 }
 else
 {
-    Logger.Warn("[更新包] 没有找到更新包,跳过解压");
+    logger.Warn("[更新包] 没有找到更新包,跳过解压");
+}
+
+// LL更新后压缩包根目录存在 LiteLoaderBDS 文件夹
+// 解压之后得将这个文件夹中的内容移动出来
+if (Directory.Exists("./LiteLoaderBDS/"))
+{
+    logger.SubTitle("LiteLoaderBDS").Info("解压后处理");
+    Folder.DirMoveAllItem("./LiteLoaderBDS/", "./");
+    Directory.Delete("./LiteLoaderBDS");
+    logger.SubTitle("LiteLoaderBDS").Info("完成");
 }
 
 //将更新文件夹里的[plugins]文件夹下的文件文件移动到插件目录下
@@ -300,9 +316,9 @@ Functions.CheckPath(updatepack_path + "plugins/");
 
 if (Directory.Exists("./plugins/"))
 {
-    Logger.Info("[插件更新] 检测到BDS目录有插件文件夹,开始更新插件");
+    logger.SubTitle("插件更新").Info("检测到BDS目录有插件文件夹,开始更新插件");
     Folder.DirMoveAllItem(updatepack_path + "plugins/", "./plugins/");
-    Logger.Info("[插件更新] 完成");
+    logger.SubTitle("插件更新").Info("完成");
 }
 
 
@@ -317,13 +333,13 @@ if (localNoFoundBDSTag)
 }
 
 //表示进行过 BDS更新
-if (File.Exists("LLPeEditor.exe") && (hasBDS_Update || !File.Exists("bedrock_server_mod.exe")))
+if (File.Exists("PeEditor.exe") && (hasBDS_Update || !File.Exists("bedrock_server_mod.exe")))
 {
-    Logger.Info("[LLPeEditor] 检测到进行过BDS更新");
-    Logger.Info("[LLPeEditor] 正在生成 bedrock_server_mod.exe");
+    logger.Info("[PeEditor] 检测到进行过BDS更新");
+    logger.Info("[PeEditor] 正在生成 bedrock_server_mod.exe");
 
-    Process process = new Process();
-    ProcessStartInfo startInfo = new ProcessStartInfo("LLPeEditor.exe", "--noPause");
+    var process = new Process();
+    var startInfo = new ProcessStartInfo("PeEditor.exe", "-m -b");
     startInfo.CreateNoWindow = true;
     startInfo.UseShellExecute = false;
     startInfo.WorkingDirectory = work_path;       //设置工作目录为BDS目录
@@ -334,7 +350,7 @@ if (File.Exists("LLPeEditor.exe") && (hasBDS_Update || !File.Exists("bedrock_ser
     process.Close();
 }
 
-Logger.Info("更新全部结束");
+logger.Info("更新全部结束");
 
 
 //覆盖询问
@@ -347,4 +363,3 @@ bool zipOverwrite(string filepath){
         hasBDS_Update = true;
     return true;
 };
-
