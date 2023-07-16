@@ -45,7 +45,7 @@ if (!localNoFoundBDSTag)
 }
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
-logger.Info("开发者: {0}, 项目创建时间: {1}, GitHub: {2}", "CNGEGE", "2022-07-27", "https://github.com/cngege");
+logger.Info("开发者: {0}, 项目创建时间: {1}, GitHub: {2}", "CNGEGE", "2022-07-27", "https://github.com/cngege/Update_BDS_AND_LL");
 if(fileVer != String.Empty)
 {
     logger.Info("程序版本: {0}", fileVer);
