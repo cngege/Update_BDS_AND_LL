@@ -17,7 +17,7 @@ using System.Reflection.PortableExecutable;
 using Update_BDS_AND_LL;
 
 bool hasBDS_Update = false;
-string work_path = Functions.CheckPathEnd(System.IO.Directory.GetCurrentDirectory());
+string work_path = Functions.CheckPathEnd(Directory.GetCurrentDirectory());
 string updatepack_path = "UpdatePack/";
 bool localNoFoundBDSTag = !File.Exists("bedrock_server.exe");
 string? fileVer = String.Empty;
@@ -182,6 +182,17 @@ while (true)
 while (true)
 {
     logger.Info("开始获取GitHub LL下载相关信息");
+    // 如果存在 LiteLoader.dll 则显示文件版本
+    if (File.Exists("LiteLoader.dll"))
+    {
+        string? llver = FileVersionInfo.GetVersionInfo("LiteLoader.dll").FileVersion;
+        if (llver != null)
+        {
+            logger.Info("已安装LL的版本: {0}", llver);
+        }
+    }
+
+
     //ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
     string Httpdata = Download.GetHttpData(LLInfoaddr);
     LLJson? LL = JsonConvert.DeserializeObject<LLJson>(Httpdata);
@@ -225,7 +236,7 @@ while (true)
         }
         logger.Warn("请输入选择一项以决定下面的工作");
         logger.Info("输入 y 回车 进行LL下载");
-        logger.Info("输入 p 回车 使用代理链接加速下载");
+        logger.Info("输入 p 回车 使用代理链接加速下载({0})", LLproxyDown);
         logger.Info("输入 n 回车 结束本程序");
         logger.Info("直接 回车 跳过LL下载,开始下一项");
         string? input = Console.ReadLine();
