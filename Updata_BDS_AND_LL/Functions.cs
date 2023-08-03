@@ -33,10 +33,11 @@ namespace Updata_BDS_AND_LL
             {
                 return path;
             }
-            else
+            if(path.IndexOf("/") != -1)
             {
                 return path + "/";
             }
+            return path + "\\";
         }
 
     }

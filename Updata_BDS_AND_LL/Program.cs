@@ -16,10 +16,19 @@ using Newtonsoft.Json;
 using System.Reflection.PortableExecutable;
 using Update_BDS_AND_LL;
 
+Logger logger = new();
+
 bool hasBDS_Update = false;
 string work_path = Functions.CheckPathEnd(Directory.GetCurrentDirectory());
-string updatepack_path = "UpdatePack/";
-bool localNoFoundBDSTag = !File.Exists("bedrock_server.exe");
+
+#if DEBUG
+work_path = Functions.CheckPathEnd(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)) + "BDSDebug\\";
+Functions.CheckPath(work_path);
+logger.Warn("当前正在使用DEBUG模式,此模式仅用于开发调试,正式生产工作禁用!!!");
+#endif
+
+string updatepack_path = work_path + "UpdatePack/";
+bool localNoFoundBDSTag = !File.Exists(work_path + "bedrock_server.exe");
 string? fileVer = String.Empty;
 string? BDSVer = String.Empty;
 string Serveraddr = "https://www.minecraft.net/en-us/download/server/bedrock/";
@@ -32,7 +41,7 @@ string LLproxyDown = "https://ghproxy.com/{0}";
 
 string? thispath = Process.GetCurrentProcess().MainModule?.FileName;
 
-Logger logger = new();
+
 
 if(thispath != null)
 {
@@ -41,10 +50,13 @@ if(thispath != null)
 
 if (!localNoFoundBDSTag)
 {
-    BDSVer = FileVersionInfo.GetVersionInfo("./bedrock_server.exe").FileVersion;
+    BDSVer = FileVersionInfo.GetVersionInfo(work_path + "bedrock_server.exe").FileVersion;
 }
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+
+
 logger.Info("开发者: {0}, 项目创建时间: {1}, GitHub: {2}", "CNGEGE", "2022-07-27", "https://github.com/cngege/Update_BDS_AND_LL");
 if(fileVer != String.Empty)
 {
@@ -142,10 +154,16 @@ while (true)
             //下载：
             logger.Info("开始下载,请稍候...");
             bool downok = false;
+            long filesize = 0;
+            long downsize = 0;
+
             var DownBDS = new Download(BDSDownaddr, updatepack_path, $"BDS{BDSVersion}.zip");
             DownBDS.Suffix = ".bds";
-            DownBDS.Downprogress += (long filesize, long downsize, bool waft) =>
+            DownBDS.Downprogress += (long _filesize, long _downsize, bool waft) =>
             {
+                filesize = _filesize;
+                downsize = _downsize;
+
                 if (waft)
                 {
                     downok = true;
@@ -160,14 +178,27 @@ while (true)
             if(DownStatus == 1)
             {
                 logger.Info("BDS{0}.zip 已经创建线程下载,下载中", BDSVersion);
-                while (!downok)
+                while (true)
                 {
-                    Thread.Sleep(500);
+                    // 显示下载进度
+                    if (filesize != 0)
+                    {
+                        Console.Write(new String(' ', Console.WindowWidth));
+                        Console.SetCursorPosition(0, Console.CursorTop);
+                        if (downok)
+                        {
+                            Console.WriteLine("100% 完成.");
+                            break;
+                        }
+                        Console.Write(string.Format("{0}% 下载中...", Download.GetintPercent(filesize, downsize)));
+                        Console.SetCursorPosition(0, Console.CursorTop);
+                    }
+                    Thread.Sleep(1000);
                 }
                 logger.Info("BDS{0}.zip 下载完成. ", BDSVersion);
                 break;
             }
-            if(DownStatus == 2)
+            if(DownStatus == 2)     // 文件已经存在,或文件很小一次请求就下载完成
             {
                 logger.Info("BDS{0}.zip 下载完成.", BDSVersion);
                 break;
@@ -183,9 +214,9 @@ while (true)
 {
     logger.Info("开始获取GitHub LL下载相关信息");
     // 如果存在 LiteLoader.dll 则显示文件版本
-    if (File.Exists("LiteLoader.dll"))
+    if (File.Exists(work_path + "LiteLoader.dll"))
     {
-        string? llver = FileVersionInfo.GetVersionInfo("LiteLoader.dll").FileVersion;
+        string? llver = FileVersionInfo.GetVersionInfo(work_path + "LiteLoader.dll").FileVersion;
         if (llver != null)
         {
             logger.Info("已安装LL的版本: {0}", llver);
@@ -229,7 +260,7 @@ while (true)
             {
                 if (body.ToLower().IndexOf("bds-") != -1)
                 {
-                    logger.Info("和BDS有关介绍:{0}", body);
+                    logger.Color(ConsoleColor.DarkGreen).Info("和BDS有关介绍:{0}", body);
                     break;
                 }
             }
@@ -255,10 +286,16 @@ while (true)
             logger.Info("开始下载,请稍候...");
             string? url = (input.ToLower() == "p") ? string.Format(LLproxyDown, LL.assets.First().browser_download_url) : LL.assets.First().browser_download_url;
             bool downok = false;
+            long filesize = 0;
+            long downsize = 0;
+
             var DownBDS = new Download(url, updatepack_path, LL.assets.First().name);
             DownBDS.Suffix = ".ll";
-            DownBDS.Downprogress += (long filesize, long downsize, bool waft) =>
+            DownBDS.Downprogress += (long _filesize, long _downsize, bool waft) =>
             {
+                filesize = _filesize;
+                downsize = _downsize;
+
                 if (waft)
                 {
                     downok = true;
@@ -273,9 +310,22 @@ while (true)
             if (DownStatus == 1)
             {
                 logger.Info("{0} 已经创建线程下载,下载中", LL.assets.First().name);
-                while (!downok)
+                while (true)
                 {
-                    Thread.Sleep(500);
+                    // 显示下载进度
+                    if (filesize != 0)
+                    {
+                        Console.Write(new String(' ', Console.WindowWidth));
+                        Console.SetCursorPosition(0, Console.CursorTop);
+                        if (downok)
+                        {
+                            Console.WriteLine("100% 完成.");
+                            break;
+                        }
+                        Console.Write(string.Format("{0}% 下载中...", Download.GetintPercent(filesize, downsize)));
+                        Console.SetCursorPosition(0, Console.CursorTop);
+                    }
+                    Thread.Sleep(1000);
                 }
                 logger.Info("{0} 下载完成. ", LL.assets.First().name);
                 break;
@@ -300,11 +350,10 @@ if(UpdatePackList.Length > 0)
     for (int i = 0; i < UpdatePackList.Length; i++)
     {
         logger.Info("[{0}/{1}] 正在更新: {2}", i+1, UpdatePackList.Length, Path.GetFileName(UpdatePackList[i]));
-        (new FastZip()).ExtractZip(UpdatePackList[i], ".", FastZip.Overwrite.Prompt, zipOverwrite, null, null, true);
+        (new FastZip()).ExtractZip(UpdatePackList[i], work_path, FastZip.Overwrite.Prompt, zipOverwrite, null, null, true);
         File.Delete(UpdatePackList[i]);
         logger.Info("[{0}/{1}] {2} 解压完成", i+1, UpdatePackList.Length, Path.GetFileName(UpdatePackList[i]));
     }
-
 }
 else
 {
@@ -313,11 +362,11 @@ else
 
 // LL更新后压缩包根目录存在 LiteLoaderBDS 文件夹
 // 解压之后得将这个文件夹中的内容移动出来
-if (Directory.Exists("./LiteLoaderBDS/"))
+if (Directory.Exists(work_path + "LiteLoaderBDS/"))
 {
     logger.SubTitle("LiteLoaderBDS").Info("解压后处理");
-    Folder.DirMoveAllItem("./LiteLoaderBDS/", "./");
-    Directory.Delete("./LiteLoaderBDS");
+    Folder.DirMoveAllItem(work_path + "LiteLoaderBDS/", work_path);
+    Directory.Delete(work_path + "LiteLoaderBDS");
     logger.SubTitle("LiteLoaderBDS").Info("完成");
 }
 
@@ -325,10 +374,10 @@ if (Directory.Exists("./LiteLoaderBDS/"))
 Functions.CheckPath(updatepack_path + "plugins/");
 //TODO  进行文件的移动
 
-if (Directory.Exists("./plugins/"))
+if (Directory.Exists(work_path + "plugins/"))
 {
     logger.SubTitle("插件更新").Info("检测到BDS目录有插件文件夹,开始更新插件");
-    Folder.DirMoveAllItem(updatepack_path + "plugins/", "./plugins/");
+    Folder.DirMoveAllItem(updatepack_path + "plugins/", work_path + "plugins/");
     logger.SubTitle("插件更新").Info("完成");
 }
 
@@ -337,20 +386,20 @@ if (Directory.Exists("./plugins/"))
 if (localNoFoundBDSTag)
 {
     //更新后本地有BDS
-    if (File.Exists("bedrock_server.exe"))
+    if (File.Exists(work_path + "bedrock_server.exe"))
     {
         hasBDS_Update = true;
     }
 }
 
 //表示进行过 BDS更新
-if (File.Exists("PeEditor.exe") && (hasBDS_Update || !File.Exists("bedrock_server_mod.exe")))
+if (File.Exists(work_path + "PeEditor.exe") && (hasBDS_Update || !File.Exists(work_path + "bedrock_server_mod.exe")))
 {
     logger.Info("[PeEditor] 检测到进行过BDS更新");
     logger.Info("[PeEditor] 正在生成 bedrock_server_mod.exe");
 
     var process = new Process();
-    var startInfo = new ProcessStartInfo("PeEditor.exe", "-m -b");
+    var startInfo = new ProcessStartInfo(work_path + "PeEditor.exe", "-m -b"); // TODO;
     startInfo.CreateNoWindow = true;
     startInfo.UseShellExecute = false;
     startInfo.WorkingDirectory = work_path;       //设置工作目录为BDS目录
