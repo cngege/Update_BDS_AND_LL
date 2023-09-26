@@ -36,6 +36,8 @@ string BDSPilterA = "https://minecraft.azureedge.net/bin-win/bedrock-server-";
 string BDSPilterB = ".zip";
 string BDSDownaddr = "";
 
+string RemoteBDSVersion = String.Empty;
+
 string LLInfoaddr = "https://api.github.com/repos/LiteLDev/LiteLoaderBDS/releases/latest";
 string LLproxyDown = "https://ghproxy.com/{0}";
 
@@ -127,15 +129,15 @@ while (true)
         //TagShow("寻找Windows下载地址特征结束位置");
         int zipstartposition_BDS = Httpdata.IndexOf(BDSPilterB, BDSstartposition);
         //TagShow("过滤出Windows服务器最新版本");
-        string BDSVersion = Httpdata.Substring(BDSstartposition + BDSPilterA.Length, zipstartposition_BDS - BDSstartposition - BDSPilterA.Length);
+        RemoteBDSVersion = Httpdata.Substring(BDSstartposition + BDSPilterA.Length, zipstartposition_BDS - BDSstartposition - BDSPilterA.Length);
         //TagShow("计算Windows下载地址长度");
         int BDSaddrLong = zipstartposition_BDS + BDSPilterB.Length - BDSstartposition;
         //TagShow("找出Windows下载地址");
         BDSDownaddr = Httpdata.Substring(BDSstartposition, BDSaddrLong);
 
         logger.Info("获取到BDS下载地址: {0}", BDSDownaddr);
-        logger.Info("BDS最新版本号: {0}", BDSVersion);
-        logger.Warn("请输入选择一项以决定下面的工作");
+        logger.Info("BDS最新版本号: {0}", RemoteBDSVersion);
+        logger.Color(ConsoleColor.Yellow).Info("请输入选择一项以决定下面的工作");
         logger.Info("输入 y 回车 进行BDS下载");
         logger.Info("输入 n 回车 结束本程序");
         logger.Info("直接 回车 跳过BDS下载,开始下一项");
@@ -157,7 +159,7 @@ while (true)
             long filesize = 0;
             long downsize = 0;
 
-            var DownBDS = new Download(BDSDownaddr, updatepack_path, $"BDS{BDSVersion}.zip");
+            var DownBDS = new Download(BDSDownaddr, updatepack_path, $"BDS{RemoteBDSVersion}.zip");
             DownBDS.Suffix = ".bds";
             DownBDS.Downprogress += (long _filesize, long _downsize, bool waft) =>
             {
@@ -172,12 +174,12 @@ while (true)
             int DownStatus = DownBDS.Start();
             if(DownStatus == 0)
             {
-                logger.Error("BDS{0}.zip 下载失败,本次更新到此结束", BDSVersion);
+                logger.Error("BDS{0}.zip 下载失败,本次更新到此结束", RemoteBDSVersion);
                 return;
             }
             if(DownStatus == 1)
             {
-                logger.Info("BDS{0}.zip 已经创建线程下载,下载中", BDSVersion);
+                logger.Info("BDS{0}.zip 已经创建线程下载,下载中", RemoteBDSVersion);
                 while (true)
                 {
                     // 显示下载进度
@@ -195,12 +197,12 @@ while (true)
                     }
                     Thread.Sleep(1000);
                 }
-                logger.Info("BDS{0}.zip 下载完成. ", BDSVersion);
+                logger.Info("BDS{0}.zip 下载完成. ", RemoteBDSVersion);
                 break;
             }
             if(DownStatus == 2)     // 文件已经存在,或文件很小一次请求就下载完成
             {
-                logger.Info("BDS{0}.zip 下载完成.", BDSVersion);
+                logger.Info("BDS{0}.zip 下载完成.", RemoteBDSVersion);
                 break;
             }
         }
@@ -265,7 +267,7 @@ while (true)
                 }
             }
         }
-        logger.Warn("请输入选择一项以决定下面的工作");
+        logger.Color(ConsoleColor.Yellow).Info("请输入选择一项以决定下面的工作");
         logger.Info("输入 y 回车 进行LL下载");
         logger.Info("输入 p 回车 使用代理链接加速下载({0})", LLproxyDown);
         logger.Info("输入 n 回车 结束本程序");
@@ -392,17 +394,28 @@ if (localNoFoundBDSTag)
     }
 }
 
+// 表示进行过BDS更新, 向BDS写入版本号 （没法写入，因为要修改exe
+/*
+if (hasBDS_Update)
+{
+    if (BDSVer == String.Empty || BDSVer == null && RemoteBDSVersion != string.Empty)
+    {
+       
+    }
+}
+*/
+
 //表示进行过 BDS更新
 if (File.Exists(work_path + "PeEditor.exe") && (hasBDS_Update || !File.Exists(work_path + "bedrock_server_mod.exe")))
 {
-    logger.Info("[PeEditor] 检测到进行过BDS更新");
-    logger.Info("[PeEditor] 正在生成 bedrock_server_mod.exe");
+    logger.SubTitle("PeEditor").Info("检测到进行过BDS更新");
+    logger.SubTitle("PeEditor").Info("正在生成 bedrock_server_mod.exe");
 
     var process = new Process();
-    var startInfo = new ProcessStartInfo(work_path + "PeEditor.exe", "-m -b"); // TODO;
+    var startInfo = new ProcessStartInfo(work_path + "PeEditor.exe", "-m -b");
     startInfo.CreateNoWindow = true;
     startInfo.UseShellExecute = false;
-    startInfo.WorkingDirectory = work_path;       //设置工作目录为BDS目录
+    startInfo.WorkingDirectory = work_path;             //设置工作目录为BDS目录
     startInfo.WindowStyle = ProcessWindowStyle.Hidden;
     process.StartInfo = startInfo;
     process.Start();
@@ -412,6 +425,8 @@ if (File.Exists(work_path + "PeEditor.exe") && (hasBDS_Update || !File.Exists(wo
 
 logger.Info("更新全部结束");
 
+// 延迟3s关闭
+Thread.Sleep(3000);
 
 //覆盖询问
 bool zipOverwrite(string filepath){
