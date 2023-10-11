@@ -13,7 +13,6 @@ using Tools.Fileoperate;
 using Tools.Net;
 using System.Net;
 using Newtonsoft.Json;
-using System.Reflection.PortableExecutable;
 using Update_BDS_AND_LL;
 
 Logger logger = new();
@@ -38,7 +37,7 @@ string BDSDownaddr = "";
 
 string RemoteBDSVersion = String.Empty;
 
-string LLInfoaddr = "https://api.github.com/repos/LiteLDev/LiteLoaderBDS/releases/latest";
+string LLInfoaddr = "https://api.github.com/repos/LiteLDev/LiteLoaderBDSv2/releases/latest";
 string LLproxyDown = "https://ghproxy.com/{0}";
 
 string? thispath = Process.GetCurrentProcess().MainModule?.FileName;
@@ -68,16 +67,17 @@ if (BDSVer != String.Empty && BDSVer != null)
 {
     logger.Info("BDS程序版本: {0}", BDSVer);
 }
-logger.SubTitle("更新说明").Info("将本程序放置于BDS根目录下");
-logger.SubTitle("更新说明").Info("将更新包BDS、LL压缩包，放在[UpdatePack]文件夹中,程序将会解压所有更新包的根目录");
-logger.SubTitle("更新说明").Info("将BDS插件放到[UpdatePack/plugins]文件夹中,程序自动将该文件夹的所有内容移动到BDS插件目录");
-logger.SubTitle("更新说明").Info("程序自动判断压缩包中是否含有BDS配置文件,本地存在则不覆盖");
-logger.SubTitle("更新说明").Info("运行程序自动解压缩压缩包,如果检测到更新了BDS,且存在LLPeEditor.exe");
-logger.SubTitle("更新说明").Info("则自动运行LLPeEditor.exe生成bedrock_server_mod.exe");
-logger.SubTitle("更新说明").Info("更新后自动删除更新包");
-logger.SubTitle("更新说明").Info("*请确保运行环境目录就是本程序存在的目录");
+logger.SubTitle("关于").Color(ConsoleColor.Green).Info("本程序使用的是LL2.0版本, 3.0版本尚不成熟,暂不支持");
+logger.SubTitle("说明").Info("将本程序放置于BDS根目录下");
+logger.SubTitle("说明").Info("将更新包BDS、LL压缩包，放在[UpdatePack]文件夹中,程序将会解压所有更新包的根目录");
+logger.SubTitle("说明").Info("将BDS插件放到[UpdatePack/plugins]文件夹中,程序自动将该文件夹的所有内容移动到BDS插件目录");
+logger.SubTitle("说明").Info("程序自动判断压缩包中是否含有BDS配置文件,本地存在则不覆盖");
+logger.SubTitle("说明").Info("运行程序自动解压缩压缩包,如果检测到更新了BDS,且存在LLPeEditor.exe");
+logger.SubTitle("说明").Info("则自动运行LLPeEditor.exe生成bedrock_server_mod.exe");
+logger.SubTitle("说明").Info("更新后自动删除更新包");
+logger.SubTitle("说明").Info("*请确保运行环境目录就是本程序存在的目录");
 logger.SubTitle("下载地址").Info("BDS下载地址：{0}", "https://www.minecraft.net/zh-hans/download/server/bedrock");
-logger.SubTitle("下载地址").Info("LL下载地址：{0}", "https://github.com/LiteLDev/LiteLoaderBDS/releases");
+logger.SubTitle("下载地址").Info("LL下载地址：{0}", "https://github.com/LiteLDev/LiteLoaderBDSv2/releases");
 
 //不接受传参自定义上传文件文件夹
 Functions.CheckPath(updatepack_path);
