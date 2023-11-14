@@ -39,6 +39,8 @@ string RemoteBDSVersion = String.Empty;
 
 string LLInfoaddr = "https://api.github.com/repos/LiteLDev/LiteLoaderBDSv2/releases/latest";
 string LLproxyDown = "https://ghproxy.com/{0}";
+string LLproxyDown2 = "https://mirror.ghproxy.com/{0}";
+string LLproxyDown3 = "https://gh.landwind.icu/{0}";
 
 string? thispath = Process.GetCurrentProcess().MainModule?.FileName;
 
@@ -270,6 +272,8 @@ while (true)
         logger.Color(ConsoleColor.Yellow).Info("请输入选择一项以决定下面的工作");
         logger.Info("输入 y 回车 进行LL下载");
         logger.Info("输入 p 回车 使用代理链接加速下载({0})", LLproxyDown);
+        logger.Info("输入 mp 回车 使用代理链接加速下载({0})", LLproxyDown2);
+        logger.Info("输入 l 回车 使用代理链接加速下载({0})", LLproxyDown3);
         logger.Info("输入 n 回车 结束本程序");
         logger.Info("直接 回车 跳过LL下载,开始下一项");
         string? input = Console.ReadLine();
@@ -282,11 +286,14 @@ while (true)
             logger.Warn("本次更新到此结束");
             return;
         }
-        if (input.ToLower() == "y" || input.ToLower() == "p")
+        if (input.ToLower() == "y" || input.ToLower() == "p" || input.ToLower() == "mp" || input.ToLower() == "l")
         {
             //下载：
             logger.Info("开始下载,请稍候...");
-            string? url = (input.ToLower() == "p") ? string.Format(LLproxyDown, LL.assets.First().browser_download_url) : LL.assets.First().browser_download_url;
+            string? url = LL.assets.First().browser_download_url;
+            if (input.ToLower() == "p") url = string.Format(LLproxyDown, LL.assets.First().browser_download_url);
+            if (input.ToLower() == "mp") url = string.Format(LLproxyDown2, LL.assets.First().browser_download_url);
+            if (input.ToLower() == "l") url = string.Format(LLproxyDown3, LL.assets.First().browser_download_url);
             bool downok = false;
             long filesize = 0;
             long downsize = 0;
